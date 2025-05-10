@@ -1,4 +1,12 @@
+import datetime
+import re
+
 import requests
+
+
+def inject_year(text):
+    pattern = re.compile(r'\[yyyy\]|<year>')
+    return pattern.sub(str(datetime.date.today().year), text)
 
 
 def resolve(expression):
@@ -9,4 +17,4 @@ def resolve(expression):
     'MIT License...'
     """
     url = f"https://raw.githubusercontent.com/spdx/license-list-data/main/text/{expression}.txt"
-    return requests.get(url).text
+    return inject_year(requests.get(url).text)
