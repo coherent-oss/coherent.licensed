@@ -1,7 +1,6 @@
 import datetime
 import re
-
-import requests
+import urllib.request
 
 
 def inject_year(text):
@@ -17,4 +16,5 @@ def resolve(expression):
     'MIT License...'
     """
     url = f"https://raw.githubusercontent.com/spdx/license-list-data/main/text/{expression}.txt"
-    return inject_year(requests.get(url).text)
+    with urllib.request.urlopen(url) as response:
+        return inject_year(response.read().decode('utf-8'))
