@@ -1,7 +1,20 @@
+import contextlib
 import functools
 import pathlib
 
 from . import resolve
+
+
+def do_nothing(*args, **kwargs):
+    return None
+
+
+def if_depended(func):
+    with contextlib.suppress(FileNotFoundError):
+        project = pathlib.Path('pyproject.toml').read_text(encoding='utf-8')
+        if 'coherent.licensed' in project:
+            return func
+    return do_nothing
 
 
 def _finalize_license_files(dist):
@@ -15,6 +28,7 @@ def _finalize_license_files(dist):
     license.write_text(resolve(dist.metadata.license_expression))
 
 
+@if_depended
 def inject(dist):
     """
     Patch the dist to resolve the license expression.
