@@ -1,6 +1,7 @@
 import contextlib
 import functools
 import pathlib
+import warnings
 
 from . import resolve
 
@@ -14,6 +15,7 @@ def if_depended(func):
         project = pathlib.Path('pyproject.toml').read_text(encoding='utf-8')
         if 'coherent.licensed' in project:
             return func
+    warnings.warn("Avoid installing this plugin for projects that don't depend on it.")
     return do_nothing
 
 
