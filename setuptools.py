@@ -9,8 +9,10 @@ def _finalize_license_files(dist):
     Resolve the license expression into a license file.
     """
     license = pathlib.Path('LICENSE')
-    license.write_text(resolve(dist.metadata.license_expression))
     dist.metadata.license_files = [str(license)]
+    if license.exists():
+        return
+    license.write_text(resolve(dist.metadata.license_expression))
 
 
 def inject(dist):
