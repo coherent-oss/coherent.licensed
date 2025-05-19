@@ -4,33 +4,40 @@ import pathlib
 import warnings
 
 from . import resolve
+from ._functools import apply
 
 
-def do_nothing(*args, **kwargs):
-    return None
+def warn_if_false(enabled):
+    enabled or warnings.warn(
+        "Avoid installing this plugin for projects that don't depend on it."
+    )
+    return enabled
 
 
-def if_depended(func):
+def dist_root(dist):
+    return pathlib.Path(dist.src_root or '')
+
+
+@apply(warn_if_false)
+@apply(bool)
+def enabled(dist):
+    root = dist_root(dist)
     with contextlib.suppress(FileNotFoundError):
-        project = pathlib.Path('pyproject.toml').read_text(encoding='utf-8')
-        if 'coherent.licensed' in project:
-            return func
-    warnings.warn("Avoid installing this plugin for projects that don't depend on it.")
-    return do_nothing
+        project = root.joinpath('pyproject.toml').read_text(encoding='utf-8')
+        return 'coherent.licensed' in project
 
 
 def _finalize_license_files(dist):
     """
     Resolve the license expression into a license file.
     """
-    license = pathlib.Path('LICENSE')
+    license = dist_root(dist) / 'LICENSE'
     dist.metadata.license_files = [str(license)]
     if license.exists():
         return
     license.write_text(resolve(dist.metadata.license_expression))
 
 
-@if_depended
 def inject(dist):
     """
     Patch the dist to resolve the license expression.
@@ -39,4 +46,6 @@ def inject(dist):
     the license expression has not been loaded yet, so patch _finalize_license_files
     to write out the license after expressions are loaded.
     """
+    if not enabled(dist):
+        return
     dist._finalize_license_files = functools.partial(_finalize_license_files, dist)
