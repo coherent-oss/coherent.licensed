@@ -15,16 +15,21 @@ def warn_if_false(enabled):
     )
 
 
-def dist_root(dist):
-    return pathlib.Path(dist.src_root or '')
+def dist_root(dist) -> pathlib.Path:
+    """
+    Resolve the source root for the distribution.
+
+    If the root is set to None (such as during Setuptools' own tests),
+    expect a TypeError.
+    """
+    return pathlib.Path(dist.src_root)
 
 
 @result_invoke(warn_if_false)
 @apply(bool)
 def enabled(dist):
-    root = dist_root(dist)
-    with contextlib.suppress(FileNotFoundError):
-        project = root.joinpath('pyproject.toml').read_text(encoding='utf-8')
+    with contextlib.suppress(FileNotFoundError, TypeError):
+        project = dist_root(dist).joinpath('pyproject.toml').read_text(encoding='utf-8')
         return 'coherent.licensed' in project
 
 
