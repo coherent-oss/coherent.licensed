@@ -32,6 +32,8 @@ def _finalize_license_files(dist):
     """
     Resolve the license expression into a license file.
     """
+    if not enabled(dist):
+        return
     license = dist_root(dist) / 'LICENSE'
     dist.metadata.license_files = [str(license)]
     if license.exists():
@@ -47,6 +49,4 @@ def inject(dist):
     the license expression has not been loaded yet, so patch _finalize_license_files
     to write out the license after expressions are loaded.
     """
-    if not enabled(dist):
-        return
     dist._finalize_license_files = functools.partial(_finalize_license_files, dist)
