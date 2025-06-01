@@ -14,3 +14,16 @@ def apply(transform):
         return functools.wraps(func)(compose(transform, func))
 
     return wrap
+
+
+def result_invoke(action):
+    def wrap(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+            action(result)
+            return result
+
+        return wrapper
+
+    return wrap

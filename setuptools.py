@@ -4,21 +4,20 @@ import pathlib
 import warnings
 
 from . import resolve
-from ._functools import apply
+from ._functools import apply, result_invoke
 
 
 def warn_if_false(enabled):
     enabled or warnings.warn(
         "Avoid installing this plugin for projects that don't depend on it."
     )
-    return enabled
 
 
 def dist_root(dist):
     return pathlib.Path(dist.src_root or '')
 
 
-@apply(warn_if_false)
+@result_invoke(warn_if_false)
 @apply(bool)
 def enabled(dist):
     root = dist_root(dist)
