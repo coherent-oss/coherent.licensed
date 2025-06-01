@@ -27,3 +27,18 @@ def result_invoke(action):
         return wrapper
 
     return wrap
+
+
+def identity(x):
+    return x
+
+
+def bypass_when(check, *, _op=identity):
+    def decorate(func):
+        @functools.wraps(func)
+        def wrapper(param, /):
+            return param if _op(check) else func(param)
+
+        return wrapper
+
+    return decorate

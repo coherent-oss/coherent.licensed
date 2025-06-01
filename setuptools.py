@@ -1,12 +1,14 @@
 import contextlib
 import functools
+import os
 import pathlib
 import warnings
 
 from . import resolve
-from ._functools import apply, result_invoke
+from ._functools import apply, bypass_when, result_invoke
 
 
+@bypass_when(os.environ.get('COHERENT_LICENSED_UNUSED_ACTION', 'warn') == 'ignore')
 def warn_if_false(enabled):
     enabled or warnings.warn(
         "Avoid installing this plugin for projects that don't depend on it."
