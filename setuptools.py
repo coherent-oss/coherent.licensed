@@ -28,12 +28,12 @@ def enabled(dist):
         return 'coherent.licensed' in project
 
 
-def _finalize_license_files(dist):
+def _finalize_license_files(dist, orig):
     """
     Resolve the license expression into a license file.
     """
     if not enabled(dist):
-        return
+        return orig()
     license = dist_root(dist) / 'LICENSE'
     dist.metadata.license_files = [str(license)]
     if license.exists():
@@ -49,4 +49,6 @@ def inject(dist):
     the license expression has not been loaded yet, so patch _finalize_license_files
     to write out the license after expressions are loaded.
     """
-    dist._finalize_license_files = functools.partial(_finalize_license_files, dist)
+    dist._finalize_license_files = functools.partial(
+        _finalize_license_files, dist, orig=dist._finalize_license_files
+    )
