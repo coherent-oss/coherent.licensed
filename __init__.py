@@ -1,3 +1,5 @@
+__license__ = 'Apache-2.0'
+
 import datetime
 import re
 import urllib.request
